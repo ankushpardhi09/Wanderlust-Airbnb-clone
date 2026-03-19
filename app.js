@@ -19,19 +19,27 @@ const User = require("./models/user.js");
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
-const { error } = require("console");
 const Listings = require("./models/listing.js");
 
 //const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 
 
 const dbUrl = process.env.ATLASDB_URL;
+
+if (!dbUrl) {
+  console.error("❌ ERROR: ATLASDB_URL environment variable is not set. Please check your .env file.");
+  process.exit(1);
+}
+
+console.log("✅ Environment variable ATLASDB_URL is set. Database URL configured successfully.");
+
 main()
   .then(() => {
     console.log("connected to DB");
   })
   .catch((err) => {
-    console.log(err);
+    console.error("❌ Failed to connect to MongoDB:", err.message);
+    process.exit(1);
   });
 
 async function main() {
@@ -53,7 +61,7 @@ const store = MongoStore.create({
   touchAfter: 24 * 3600,
 });
 
-store.on(error, () => {
+store.on("error", (err) => {
   console.log("ERROR in MONGO SESSION STORE", err);
 });
 
